@@ -8,6 +8,7 @@ Kjør:
 from __future__ import annotations
 
 import calendar as cal
+import os
 from datetime import date, datetime, timedelta
 from functools import wraps
 
@@ -19,8 +20,16 @@ from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import check_password_hash, generate_password_hash
 
 app = Flask(__name__)
-app.config["SECRET_KEY"] = "bytt-meg-i-produksjon"
-app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///treningsplanlegger.db"
+
+# Database: bruker DATABASE_URL fra miljøet i produksjon (Render/Supabase/Neon),
+# faller tilbake til SQLite for lokal utvikling.
+db_url = os.environ.get("DATABASE_URL", "sqlite:///treningsplanlegger.db")
+# SQLAlchemy 1.4+ aksepterer ikke postgres:// — Heroku/eldre tjenester bruker det
+if db_url.startswith("postgres://"):
+    db_url = db_url.replace("postgres://", "postgresql://", 1)
+
+app.config["SECRET_KEY"] = os.environ.get("SECRET_KEY", "bytt-meg-i-produksjon")
+app.config["SQLALCHEMY_DATABASE_URI"] = db_url
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
 db = SQLAlchemy(app)
@@ -436,11 +445,15 @@ def init_db() -> None:
     db.session.commit()
 
 
+# Kjør init_db() ved oppstart – også når gunicorn (Render) importerer appen,
+# ikke bare når den startes direkte med `python app.py`. Operasjonen er
+# idempotent (oppretter kun manglende tabeller / standardverdier).
+with app.app_context():
+    init_db()
+
+
 if __name__ == "__main__":
     import socket
-    with app.app_context():
-        init_db()
-
     port = 5000
     try:
         local_ip = socket.gethostbyname(socket.gethostname())
