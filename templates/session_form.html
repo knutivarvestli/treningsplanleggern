@@ -1,0 +1,93 @@
+{% extends "base.html" %}
+{% block content %}
+{% set s = session or prefill %}
+<div class="card">
+  <h1>{% if session %}Rediger økt{% else %}Ny treningsøkt{% endif %}</h1>
+
+  {% if not session and not prefill %}
+  <form method="get" class="inline">
+    <label>Bruk mal:
+      <select name="template_id" onchange="this.form.submit()">
+        <option value="">– velg –</option>
+        {% for m in current_user.templates %}
+          <option value="{{ m.id }}">{{ m.navn }}</option>
+        {% endfor %}
+      </select>
+    </label>
+  </form>
+  {% endif %}
+
+  <form method="post">
+    <label>Dato
+      <input type="date" name="dato"
+             value="{{ session.dato.isoformat() if session else default_date }}" required>
+    </label>
+
+    <label>Aktivitet
+      <select name="aktivitet" required>
+        {% for a in aktiviteter %}
+          <option value="{{ a }}" {% if s and s.aktivitet == a %}selected{% endif %}>{{ a }}</option>
+        {% endfor %}
+      </select>
+    </label>
+
+    <label>Økttype
+      <select name="okttype" required>
+        {% for o in okttyper %}
+          <option value="{{ o }}" {% if s and s.okttype == o %}selected{% endif %}>{{ o }}</option>
+        {% endfor %}
+      </select>
+    </label>
+
+    <label>Teknikk / Terreng
+      <select name="teknikk">
+        <option value="">–</option>
+        {% for t in teknikker %}
+          <option value="{{ t }}" {% if s and s.teknikk == t %}selected{% endif %}>{{ t }}</option>
+        {% endfor %}
+      </select>
+    </label>
+
+    <label>Varighet / Omfang (fri tekst)
+      <input name="varighet" placeholder="1:15, 10 km, 6 x 5 min"
+             value="{{ s.varighet if s and s.varighet else '' }}">
+    </label>
+
+    <div class="row">
+      <label>Distanse (km)
+        <input type="number" step="0.1" min="0" name="distanse_km"
+               value="{{ session.distanse_km if session and session.distanse_km else '' }}">
+      </label>
+      <label>RPE (1–10)
+        <input type="number" min="1" max="10" name="rpe"
+               value="{{ session.rpe if session and session.rpe else '' }}">
+      </label>
+    </div>
+
+    <label>Kommentar
+      <textarea name="kommentar" rows="3">{{ session.kommentar if session and session.kommentar else (prefill.kommentar if prefill else '') }}</textarea>
+    </label>
+
+    {% if not session %}
+    <fieldset class="mal-felt">
+      <legend>Lagre som mal?</legend>
+      <label class="check">
+        <input type="checkbox" name="lagre_som_mal"> Ja, lagre disse valgene som mal
+      </label>
+      <label>Mal-navn <input name="mal_navn" placeholder="f.eks. Rolig 1t klassisk"></label>
+    </fieldset>
+    {% endif %}
+
+    <div class="actions">
+      <button type="submit">Lagre</button>
+      <a class="btn-secondary" href="{{ url_for('calendar_month') }}">Avbryt</a>
+      {% if session %}
+        <form method="post" action="{{ url_for('session_delete', sid=session.id) }}"
+              onsubmit="return confirm('Slette denne økten?')" class="inline-right">
+          <button type="submit" class="danger">Slett</button>
+        </form>
+      {% endif %}
+    </div>
+  </form>
+</div>
+{% endblock %}

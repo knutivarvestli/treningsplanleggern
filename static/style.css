@@ -1,0 +1,441 @@
+* { box-sizing: border-box; }
+body {
+  font-family: -apple-system, "Segoe UI", Roboto, sans-serif;
+  margin: 0; background: #f5f7fa; color: #222;
+}
+main { max-width: 1100px; margin: 1.5rem auto; padding: 0 1rem; }
+
+.topbar {
+  display: flex; align-items: center; gap: 1rem;
+  background: #1f3a5f; color: #fff; padding: .8rem 1.2rem;
+  flex-wrap: wrap;
+}
+.topbar a { color: #fff; text-decoration: none; }
+.topbar a:hover { text-decoration: underline; }
+.topbar .brand { font-weight: bold; font-size: 1.1rem; margin-right: 1rem; }
+.topbar .nav-links { display: flex; align-items: center; gap: 1rem; flex: 1; flex-wrap: wrap; }
+.topbar .spacer { flex: 1; }
+.topbar .user { opacity: .8; font-size: .9rem; }
+
+.menu-toggle {
+  display: none; background: transparent; color: #fff; font-size: 1.4rem;
+  padding: .2rem .6rem; border: 1px solid rgba(255,255,255,.4);
+}
+
+.card { background: #fff; padding: 1.5rem; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,.08); }
+.card.narrow { max-width: 360px; margin: 4rem auto; }
+.card h1 { margin-top: 0; }
+
+label { display: block; margin-bottom: .8rem; font-weight: 500; }
+input, select, textarea {
+  display: block; width: 100%; padding: .5rem; margin-top: .25rem;
+  border: 1px solid #ccc; border-radius: 4px; font-size: 1rem;
+  background: #fff; font-family: inherit;
+}
+.row { display: flex; gap: 1rem; }
+.row label { flex: 1; }
+
+button, .btn, .btn-secondary {
+  background: #1f3a5f; color: #fff; border: none; padding: .55rem 1.1rem;
+  border-radius: 4px; cursor: pointer; font-size: 1rem; text-decoration: none;
+  display: inline-block;
+}
+button:hover, .btn:hover { background: #2a4d7d; }
+.btn-secondary { background: #888; }
+button.danger, .danger { background: #b33; }
+button.link-btn { background: none; color: #1f3a5f; padding: 0; font-size: inherit; }
+button.link-btn.danger { color: #b33; }
+
+.actions { display: flex; gap: .6rem; align-items: center; margin-top: 1rem; }
+.actions .inline-right { margin-left: auto; }
+
+.flash { padding: .6rem 1rem; border-radius: 4px; margin-bottom: 1rem; }
+.flash-ok { background: #d8f0d8; color: #2a6a2a; }
+.flash-error { background: #fdd; color: #a22; }
+
+.cal-header { display: flex; align-items: center; gap: 1rem; margin-bottom: 1rem; }
+.cal-header h1 { flex: 1; text-align: center; margin: 0; }
+
+/* Ukenavigering – skjult på desktop, vises i mobil-modus (se nederst i fila) */
+.month-week-nav { display: none; }
+
+.calendar { width: 100%; border-collapse: collapse; background: #fff; }
+.calendar th, .calendar td {
+  border: 1px solid #e0e0e0; vertical-align: top; padding: .35rem;
+  width: 14.28%; height: 110px;
+}
+.calendar th { background: #eef1f5; height: auto; }
+.calendar .other-month { background: #fafafa; color: #aaa; }
+.calendar .today { background: #fff8d5; }
+.calendar .daynum {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 3px;
+}
+.calendar .daynum .day-number { font-weight: bold; }
+.calendar .day-add {
+  color: #1f3a5f; text-decoration: none; font-weight: bold;
+  background: #e3ecf7; border-radius: 50%;
+  width: 22px; height: 22px; display: inline-flex;
+  align-items: center; justify-content: center;
+  font-size: 1rem; line-height: 1;
+  opacity: 0; transition: opacity .15s;
+}
+.calendar td:hover .day-add,
+.calendar td.today .day-add { opacity: 1; }
+.calendar .day-add:hover { background: #1f3a5f; color: #fff; }
+
+.calendar .day-add-empty {
+  display: block; font-size: .75rem; color: #1f3a5f;
+  text-decoration: none; padding: 4px 6px; margin-top: 4px;
+  border: 1px dashed transparent; border-radius: 4px;
+  opacity: 0; transition: opacity .15s, border-color .15s;
+}
+.calendar td:hover .day-add-empty { opacity: .9; border-color: #b6c6dd; }
+.calendar .day-add-empty:hover { background: #e3ecf7; opacity: 1; }
+
+/* Tilsvarende «legg til»-lenke i ukesvisning */
+.week-day .day-add-empty {
+  display: block; font-size: .8rem; color: #1f3a5f;
+  text-decoration: none; padding: .4rem .5rem;
+  border: 1px dashed #b6c6dd; border-radius: 4px;
+  text-align: center; margin-top: .35rem; opacity: .7;
+}
+.week-day .day-add-empty:hover { background: #e3ecf7; opacity: 1; }
+.week-day h3 .add {
+  margin-left: auto; text-decoration: none; color: #fff;
+  background: #1f3a5f; width: 26px; height: 26px;
+  display: inline-flex; align-items: center; justify-content: center;
+  border-radius: 50%; font-size: 1rem; line-height: 1;
+}
+.week-day h3 .add:hover { background: #2a4d7d; }
+
+.session-pill {
+  display: block; font-size: .78rem; padding: 2px 6px; border-radius: 3px;
+  margin-top: 2px; background: #e3ecf7; color: #1f3a5f; text-decoration: none;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.session-pill.type-intervall { background: #ffd9b3; color: #7a3a00; }
+.session-pill.type-konkurranse { background: #ffb3b3; color: #7a0000; }
+.session-pill.type-styrke { background: #d6c6f0; color: #3a1f7a; }
+.session-pill.type-rolig { background: #c9e9c9; color: #1f5a1f; }
+
+.week-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: .5rem; }
+.week-day { background: #fff; padding: .6rem; border-radius: 6px; min-height: 180px; }
+.week-day.today { outline: 2px solid #ffce3a; }
+.week-day h3 { margin: 0 0 .5rem; font-size: .9rem; display: flex; align-items: center; }
+.week-day .empty { color: #bbb; }
+
+.session-card {
+  display: block; background: #e3ecf7; padding: .4rem .5rem; border-radius: 4px;
+  font-size: .8rem; margin-bottom: .35rem; color: #1f3a5f; text-decoration: none;
+}
+.session-card.type-intervall { background: #ffd9b3; color: #7a3a00; }
+.session-card.type-konkurranse { background: #ffb3b3; color: #7a0000; }
+.session-card.type-styrke { background: #d6c6f0; color: #3a1f7a; }
+.session-card.type-rolig { background: #c9e9c9; color: #1f5a1f; }
+
+table.data { width: 100%; border-collapse: collapse; margin-top: 1rem; }
+table.data th, table.data td { padding: .5rem; border-bottom: 1px solid #eee; text-align: left; }
+.row-actions { display: flex; gap: .8rem; }
+
+.inline-form { display: flex; gap: .5rem; flex-wrap: wrap; align-items: end; margin-bottom: 1rem; }
+.inline-form input, .inline-form select { width: auto; }
+.inline { display: inline; }
+.inline label, .inline-form label { margin: 0; }
+
+.mal-felt { border: 1px dashed #bbb; padding: .8rem; border-radius: 6px; margin: 1rem 0; }
+.mal-felt legend { font-weight: bold; }
+.check { display: flex; align-items: center; gap: .4rem; }
+.check input { width: auto; margin: 0; }
+
+.lookup-cols { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; margin-top: 1rem; }
+.lookup-list { list-style: none; padding: 0; }
+.lookup-list li { display: flex; justify-content: space-between; padding: .3rem 0; border-bottom: 1px solid #eee; }
+
+.hint { font-size: .85rem; color: #666; margin-top: 1rem; }
+
+/* ===========================
+   Mobil-kort (modal) for treningsøkt-detaljer
+   =========================== */
+.session-modal[hidden] { display: none; }
+.session-modal {
+  position: fixed; inset: 0; z-index: 100;
+  display: flex; align-items: flex-end; justify-content: center;
+}
+.session-modal-backdrop {
+  position: absolute; inset: 0;
+  background: rgba(0,0,0,.55);
+  backdrop-filter: blur(2px);
+  animation: sm-fade .2s ease-out;
+}
+.session-modal-card {
+  position: relative; z-index: 1;
+  background: #fff; width: 100%; max-width: 460px;
+  border-radius: 18px 18px 0 0;
+  box-shadow: 0 -8px 30px rgba(0,0,0,.25);
+  animation: sm-slide-up .25s cubic-bezier(.2,.8,.2,1);
+  max-height: 90vh; overflow-y: auto;
+  padding-bottom: 1.2rem;
+}
+@keyframes sm-fade { from { opacity: 0 } to { opacity: 1 } }
+@keyframes sm-slide-up { from { transform: translateY(100%) } to { transform: translateY(0) } }
+
+.session-modal-close {
+  position: absolute; top: .6rem; right: .6rem; z-index: 2;
+  background: rgba(255,255,255,.85); color: #333;
+  border: none; border-radius: 50%;
+  width: 34px; height: 34px; font-size: 1.4rem; line-height: 1;
+  cursor: pointer; padding: 0;
+}
+.session-modal-close:hover { background: #fff; }
+
+/* Banner-stripe på toppen, farget etter økttype */
+.sm-type-banner {
+  height: 70px; padding: 1rem 1.2rem;
+  display: flex; align-items: flex-end;
+  background: linear-gradient(135deg, #e3ecf7, #c8d8eb);
+  color: #1f3a5f;
+  border-radius: 18px 18px 0 0;
+}
+.sm-type-banner.type-intervall { background: linear-gradient(135deg, #ffd9b3, #ffba70); color: #7a3a00; }
+.sm-type-banner.type-konkurranse { background: linear-gradient(135deg, #ffb3b3, #ff7878); color: #7a0000; }
+.sm-type-banner.type-styrke { background: linear-gradient(135deg, #d6c6f0, #b59ce0); color: #3a1f7a; }
+.sm-type-banner.type-rolig { background: linear-gradient(135deg, #c9e9c9, #88cf88); color: #1f5a1f; }
+.sm-type-badge {
+  background: rgba(255,255,255,.65); padding: .25rem .7rem;
+  border-radius: 12px; font-size: .8rem; font-weight: 600;
+  text-transform: uppercase; letter-spacing: .03em;
+}
+
+.session-modal-header { padding: 1rem 1.2rem .4rem; }
+.session-modal-header .sm-date {
+  font-size: .85rem; color: #888; margin-bottom: .25rem;
+}
+.session-modal-header h2 { margin: 0; font-size: 1.4rem; }
+.session-modal-header .sm-subtitle {
+  color: #555; font-size: .95rem; margin-top: .15rem;
+}
+.session-modal-header .sm-subtitle:empty { display: none; }
+
+.session-modal-body { padding: .6rem 1.2rem 0; }
+
+.sm-fields { margin: 0; padding: 0; }
+.sm-fields .sm-field {
+  display: grid; grid-template-columns: 42% 1fr;
+  gap: .8rem; padding: .6rem 0;
+  border-bottom: 1px solid #eee;
+}
+.sm-fields .sm-field:last-child { border-bottom: none; }
+.sm-fields dt {
+  font-size: .8rem; color: #777;
+  text-transform: uppercase; letter-spacing: .03em;
+  font-weight: 500;
+}
+.sm-fields dd {
+  margin: 0; color: #222; font-weight: 500;
+  word-break: break-word;
+}
+.sm-fields .sm-field-block {
+  grid-template-columns: 1fr;
+  gap: .25rem;
+}
+.sm-fields .sm-field-block dd { white-space: pre-wrap; font-weight: 400; }
+
+.session-modal-actions {
+  padding: 1rem 1.2rem .2rem;
+  display: flex; gap: .8rem; align-items: center;
+}
+.sm-edit-btn {
+  background: transparent; color: #1f3a5f;
+  border: 1px solid #c4d0e0; padding: .45rem .9rem;
+  border-radius: 6px; font-size: .85rem;
+  text-decoration: none; cursor: pointer;
+  white-space: nowrap;
+}
+.sm-edit-btn:hover { background: #eef3fa; }
+
+.sm-ok-btn {
+  flex: 1; background: #1f3a5f; color: #fff;
+  border: none; padding: .9rem 1.5rem;
+  border-radius: 8px; font-size: 1.05rem; font-weight: 600;
+  cursor: pointer;
+}
+.sm-ok-btn:hover { background: #2a4d7d; }
+
+/* På desktop: senterer kortet i stedet for bunn-sheet */
+@media (min-width: 600px) {
+  .session-modal { align-items: center; }
+  .session-modal-card { border-radius: 18px; max-height: 85vh; }
+  .sm-type-banner { border-radius: 18px 18px 0 0; }
+  @keyframes sm-slide-up { from { transform: translateY(20px); opacity: 0 } to { transform: translateY(0); opacity: 1 } }
+}
+
+/* Knapp for å veksle mobil-modus (synlig hele tiden i toppen) */
+.view-toggle {
+  background: transparent; color: #fff; border: 1px solid rgba(255,255,255,.4);
+  padding: .25rem .55rem; font-size: 1.1rem; line-height: 1; cursor: pointer;
+  border-radius: 4px;
+}
+.view-toggle:hover { background: rgba(255,255,255,.1); }
+
+/* ===========================
+   Mobil-stiler
+   Slår inn enten via media query (smal skjerm) eller via body-klassen
+   .mobile-forced (knapp). Begge mappes til .mobile-auto / .mobile-forced
+   av JS i base.html.
+   =========================== */
+/* iPhone-ramme rundt mobil-modus
+   Bruker faste mål 390 × 844 (iPhone 14) – med intern scrolling.
+   Pseudo-elementene (notch + home-indikator) blir liggende i ro
+   ved body-kantene mens innholdet scroller inni rammen. */
+body.mobile-forced {
+  width: 390px;
+  max-width: calc(100vw - 2.4rem);
+  height: 844px;
+  max-height: calc(100vh - 2.4rem);
+  margin: 1.2rem auto;
+  background: #f5f7fa;
+  border: 14px solid #0a0a0a;
+  border-radius: 50px;
+  box-shadow:
+    inset 0 0 0 2px #2a2a2a,
+    0 0 0 1px #555,
+    0 25px 60px rgba(0,0,0,.55);
+  position: relative;
+  padding-top: 34px;          /* plass til Dynamic Island */
+  padding-bottom: 22px;        /* plass til home-indikator */
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+html:has(body.mobile-forced) {
+  background: #1a1a1a;
+  height: 100vh;
+  overflow: hidden;            /* sider scroller inni telefonen, ikke utenfor */
+}
+
+/* Dynamic Island */
+body.mobile-forced::before {
+  content: '';
+  position: absolute;
+  top: 8px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 105px;
+  height: 26px;
+  background: #0a0a0a;
+  border-radius: 14px;
+  z-index: 200;
+}
+
+/* Home-indikator nederst i rammen */
+body.mobile-forced::after {
+  content: '';
+  position: absolute;
+  bottom: 7px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 130px;
+  height: 5px;
+  background: rgba(0,0,0,.35);
+  border-radius: 3px;
+  z-index: 200;
+}
+
+/* Topbar holder seg synlig på toppen mens innholdet scroller */
+body.mobile-forced .topbar {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+}
+
+/* Skjul månedsnavigasjonen (Forrige/Neste/måneds-h1) i mobil –
+   den nye uke-navigasjonen viser allerede dato + ukenummer */
+body:is(.mobile-auto, .mobile-forced) .cal-header { display: none; }
+
+body:is(.mobile-auto, .mobile-forced) main { margin: .8rem auto; padding: 0 .6rem; }
+
+body:is(.mobile-auto, .mobile-forced) .topbar { padding: .6rem .8rem; gap: .5rem; }
+body:is(.mobile-auto, .mobile-forced) .menu-toggle { display: inline-block; }
+body:is(.mobile-auto, .mobile-forced) .topbar .nav-links {
+  display: none; flex-direction: column; align-items: flex-start;
+  width: 100%; gap: .6rem; padding: .6rem 0 .2rem;
+  border-top: 1px solid rgba(255,255,255,.15); margin-top: .6rem;
+}
+body:is(.mobile-auto, .mobile-forced) .topbar .nav-links.open { display: flex; }
+body:is(.mobile-auto, .mobile-forced) .topbar .nav-links .spacer { display: none; }
+
+body:is(.mobile-auto, .mobile-forced) .card { padding: 1rem; }
+body:is(.mobile-auto, .mobile-forced) .card.narrow { margin: 1.5rem auto; }
+body:is(.mobile-auto, .mobile-forced) .row { flex-direction: column; gap: 0; }
+
+body:is(.mobile-auto, .mobile-forced) .cal-header { flex-wrap: wrap; gap: .5rem; }
+body:is(.mobile-auto, .mobile-forced) .cal-header h1 {
+  font-size: 1.1rem; flex-basis: 100%; order: -1;
+}
+
+/* Månedskalenderen blir for trang – vis som liste */
+body:is(.mobile-auto, .mobile-forced) .calendar,
+body:is(.mobile-auto, .mobile-forced) .calendar thead,
+body:is(.mobile-auto, .mobile-forced) .calendar tbody,
+body:is(.mobile-auto, .mobile-forced) .calendar tr,
+body:is(.mobile-auto, .mobile-forced) .calendar th,
+body:is(.mobile-auto, .mobile-forced) .calendar td { display: block; width: 100%; }
+body:is(.mobile-auto, .mobile-forced) .calendar thead { display: none; }
+body:is(.mobile-auto, .mobile-forced) .calendar td {
+  height: auto; min-height: 0; padding: .6rem .8rem;
+  border: none; border-bottom: 1px solid #e0e0e0;
+}
+body:is(.mobile-auto, .mobile-forced) .calendar td.other-month { display: none; }
+body:is(.mobile-auto, .mobile-forced) .calendar .daynum::before {
+  content: attr(data-weekday);
+  font-weight: 600; color: #1f3a5f; margin-right: .3rem;
+}
+/* Datotallet er overflødig i mobil-listen siden datoene står i uke-etiketten */
+body:is(.mobile-auto, .mobile-forced) .calendar .day-number { display: none; }
+body:is(.mobile-auto, .mobile-forced) .session-pill {
+  white-space: normal; font-size: .9rem; padding: 4px 8px;
+}
+/* Mobil har ikke hover – vis ＋-knappene hele tiden */
+body:is(.mobile-auto, .mobile-forced) .calendar .day-add,
+body:is(.mobile-auto, .mobile-forced) .calendar .day-add-empty { opacity: 1; }
+body:is(.mobile-auto, .mobile-forced) .calendar .day-add-empty { border-color: #b6c6dd; }
+
+/* Mobil: vis bare ÉN uke av månedskalenderen, med navigering over */
+body:is(.mobile-auto, .mobile-forced) .month-week-nav {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: .5rem; margin-bottom: .8rem;
+  background: #fff; padding: .5rem .8rem; border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0,0,0,.08);
+  position: sticky; top: 0; z-index: 5;
+}
+body:is(.mobile-auto, .mobile-forced) .month-week-nav .btn {
+  padding: .45rem .9rem; min-width: 44px;
+}
+body:is(.mobile-auto, .mobile-forced) .month-week-label {
+  font-weight: 600; flex: 1; text-align: center;
+}
+body:is(.mobile-auto, .mobile-forced) .calendar tbody tr:not(.is-visible) {
+  display: none;
+}
+
+body:is(.mobile-auto, .mobile-forced) .week-grid { grid-template-columns: 1fr; }
+body:is(.mobile-auto, .mobile-forced) .week-day { min-height: 0; }
+
+body:is(.mobile-auto, .mobile-forced) table.data th,
+body:is(.mobile-auto, .mobile-forced) table.data td { padding: .6rem .4rem; }
+body:is(.mobile-auto, .mobile-forced) .lookup-cols {
+  grid-template-columns: 1fr; gap: 1rem;
+}
+
+body:is(.mobile-auto, .mobile-forced) .inline-form {
+  flex-direction: column; align-items: stretch;
+}
+body:is(.mobile-auto, .mobile-forced) .inline-form input,
+body:is(.mobile-auto, .mobile-forced) .inline-form select { width: 100%; }
+
+body:is(.mobile-auto, .mobile-forced) button,
+body:is(.mobile-auto, .mobile-forced) .btn,
+body:is(.mobile-auto, .mobile-forced) .btn-secondary { padding: .7rem 1.2rem; font-size: 1rem; }
+body:is(.mobile-auto, .mobile-forced) input,
+body:is(.mobile-auto, .mobile-forced) select,
+body:is(.mobile-auto, .mobile-forced) textarea { font-size: 1rem; }

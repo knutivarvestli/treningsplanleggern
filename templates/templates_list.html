@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="card">
+  <h1>Maler</h1>
+  {% if maler %}
+    <table class="data">
+      <thead>
+        <tr><th>Navn</th><th>Aktivitet</th><th>Økttype</th><th>Teknikk</th><th>Varighet</th><th></th></tr>
+      </thead>
+      <tbody>
+        {% for m in maler %}
+          <tr>
+            <td>{{ m.navn }}</td>
+            <td>{{ m.aktivitet }}</td>
+            <td>{{ m.okttype }}</td>
+            <td>{{ m.teknikk or '–' }}</td>
+            <td>{{ m.varighet or '–' }}</td>
+            <td class="row-actions">
+              <a href="{{ url_for('session_new', template_id=m.id) }}">Bruk</a>
+              <form method="post" action="{{ url_for('template_delete', tid=m.id) }}" class="inline">
+                <button class="link-btn" onclick="return confirm('Slett mal?')">Slett</button>
+              </form>
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  {% else %}
+    <p>Ingen maler enda. Når du oppretter en ny økt kan du krysse av for «Lagre som mal».</p>
+  {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,27 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+
+# Virtuelt miljø
+.venv/
+venv/
+env/
+
+# Database (SQLite – brukerdata, skal ikke i Git)
+*.db
+*.sqlite
+*.sqlite3
+instance/
+
+# Flask
+.flaskenv
+.env
+
+# Editor / OS
+.vscode/
+.idea/
+*.swp
+.DS_Store
+Thumbs.db

@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="cal-header">
+  <a class="btn" href="{{ url_for('calendar_week', year=prev[0], week=prev[1]) }}">← Forrige uke</a>
+  <h1>Uke {{ iso_week }} – {{ iso_year }}</h1>
+  <a class="btn" href="{{ url_for('calendar_week', year=next[0], week=next[1]) }}">Neste uke →</a>
+</div>
+
+<div class="week-grid">
+  {% for day in days %}
+    <div class="week-day {% if day == today %}today{% endif %}">
+      <h3>
+        {{ ['Mandag','Tirsdag','Onsdag','Torsdag','Fredag','Lørdag','Søndag'][loop.index0] }}
+        <a class="add" href="{{ url_for('session_new', dato=day.isoformat()) }}"
+           title="Ny økt {{ day.isoformat() }}" aria-label="Ny økt">＋</a>
+      </h3>
+      {% for s in by_date[day] %}
+        <a class="session-card type-{{ s.okttype|lower }}"
+           data-session-id="{{ s.id }}"
+           href="{{ url_for('session_edit', sid=s.id) }}">
+          <strong>{{ s.aktivitet }}</strong>
+          <div>{{ s.okttype }}{% if s.teknikk %} · {{ s.teknikk }}{% endif %}</div>
+          {% if s.varighet %}<div>⏱ {{ s.varighet }}</div>{% endif %}
+          {% if s.distanse_km %}<div>📏 {{ s.distanse_km }} km</div>{% endif %}
+          {% if s.rpe %}<div>RPE {{ s.rpe }}</div>{% endif %}
+        </a>
+      {% endfor %}
+      <a class="day-add-empty" href="{{ url_for('session_new', dato=day.isoformat()) }}">
+        ＋ Legg til økt
+      </a>
+    </div>
+  {% endfor %}
+</div>
+{% endblock %}

@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="card">
+  <h1>Verdilister</h1>
+  <form method="post" class="inline-form">
+    <select name="category" required>
+      <option value="aktivitet">Aktivitet</option>
+      <option value="okttype">Økttype</option>
+      <option value="teknikk">Teknikk / Terreng</option>
+    </select>
+    <input name="value" placeholder="Ny verdi" required>
+    <button type="submit">Legg til</button>
+  </form>
+
+  <div class="lookup-cols">
+    {% for tittel, items in [('Aktivitet', aktiviteter),
+                             ('Økttype', okttyper),
+                             ('Teknikk / Terreng', teknikker)] %}
+      <div>
+        <h3>{{ tittel }}</h3>
+        <ul class="lookup-list">
+          {% for v in items %}
+            <li>
+              {{ v.value }}
+              <form method="post" action="{{ url_for('admin_lookup_delete', lid=v.id) }}" class="inline">
+                <button class="link-btn danger" onclick="return confirm('Slett {{ v.value }}?')">×</button>
+              </form>
+            </li>
+          {% endfor %}
+        </ul>
+      </div>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}

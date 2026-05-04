@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="card">
+  <h1>Brukere</h1>
+  <form method="post" class="inline-form">
+    <input name="username" placeholder="Brukernavn" required>
+    <input name="password" type="password" placeholder="Passord" required>
+    <select name="role">
+      <option value="bruker">Bruker</option>
+      <option value="admin">Administrator</option>
+    </select>
+    <button type="submit">Opprett</button>
+  </form>
+
+  <table class="data">
+    <thead><tr><th>Brukernavn</th><th>Rolle</th><th></th></tr></thead>
+    <tbody>
+      {% for u in users %}
+        <tr>
+          <td>{{ u.username }}</td>
+          <td>{{ u.role }}</td>
+          <td>
+            {% if u.id != current_user.id %}
+              <form method="post" action="{{ url_for('admin_user_delete', uid=u.id) }}" class="inline">
+                <button class="link-btn danger"
+                        onclick="return confirm('Slett bruker {{ u.username }}?')">Slett</button>
+              </form>
+            {% else %}
+              <em>(deg)</em>
+            {% endif %}
+          </td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

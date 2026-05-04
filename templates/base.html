@@ -1,0 +1,173 @@
+<!doctype html>
+<html lang="no">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#1f3a5f">
+  <title>Treningsplanleggern</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+{% if current_user.is_authenticated %}
+<nav class="topbar">
+  <a href="{{ url_for('calendar_month') }}" class="brand">🎿 Treningsplanleggern</a>
+  <span class="spacer"></span>
+  <button id="view-toggle" class="view-toggle" type="button"
+          aria-label="Bytt mellom mobil- og desktop-visning"
+          title="Bytt visning">📱</button>
+  <button class="menu-toggle" aria-label="Meny" aria-expanded="false"
+          onclick="this.setAttribute('aria-expanded', this.getAttribute('aria-expanded')==='true' ? 'false':'true'); document.getElementById('nav-links').classList.toggle('open')">☰</button>
+  <div class="nav-links" id="nav-links">
+    <a href="{{ url_for('calendar_month') }}">Måned</a>
+    <a href="{{ url_for('calendar_week') }}">Uke</a>
+    <a href="{{ url_for('session_new') }}">Ny økt</a>
+    <a href="{{ url_for('templates_list') }}">Maler</a>
+    {% if current_user.is_admin %}
+      <a href="{{ url_for('admin_users') }}">Brukere</a>
+      <a href="{{ url_for('admin_lookups') }}">Verdilister</a>
+    {% endif %}
+    <span class="spacer"></span>
+    <span class="user">{{ current_user.username }} ({{ current_user.role }})</span>
+    <a href="{{ url_for('logout') }}">Logg ut</a>
+  </div>
+</nav>
+{% endif %}
+
+<script>
+(function () {
+  const body = document.body;
+  const KEY = 'mobileForced';
+
+  // Auto-mobil basert på faktisk skjermbredde
+  const mq = window.matchMedia('(max-width: 720px)');
+  const applyAuto = () => body.classList.toggle('mobile-auto', mq.matches);
+  mq.addEventListener('change', applyAuto);
+  applyAuto();
+
+  // Tvunget mobil-modus, lagret i localStorage
+  const setForced = (on) => {
+    body.classList.toggle('mobile-forced', on);
+    const btn = document.getElementById('view-toggle');
+    if (btn) {
+      btn.textContent = on ? '🖥️' : '📱';
+      btn.title = on ? 'Vis desktop-visning' : 'Vis mobil-visning';
+    }
+  };
+  setForced(localStorage.getItem(KEY) === '1');
+
+  const btn = document.getElementById('view-toggle');
+  if (btn) {
+    btn.addEventListener('click', () => {
+      const on = !body.classList.contains('mobile-forced');
+      localStorage.setItem(KEY, on ? '1' : '0');
+      setForced(on);
+    });
+  }
+})();
+</script>
+
+<main>
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% for cat, msg in messages %}
+      <div class="flash flash-{{ cat }}">{{ msg }}</div>
+    {% endfor %}
+  {% endwith %}
+  {% block content %}{% endblock %}
+</main>
+
+{% if current_user.is_authenticated %}
+<div id="session-modal" class="session-modal" hidden role="dialog" aria-modal="true" aria-labelledby="sm-title">
+  <div class="session-modal-backdrop" data-close></div>
+  <div class="session-modal-card">
+    <button class="session-modal-close" data-close aria-label="Lukk">×</button>
+    <div class="sm-type-banner" id="sm-type-banner">
+      <span class="sm-type-badge" id="sm-type"></span>
+    </div>
+    <header class="session-modal-header">
+      <div class="sm-date" id="sm-date"></div>
+      <h2 id="sm-title"></h2>
+    </header>
+    <div class="session-modal-body">
+      <dl class="sm-fields">
+        <div class="sm-field"><dt>Aktivitet</dt><dd id="sm-aktivitet"></dd></div>
+        <div class="sm-field"><dt>Økttype</dt><dd id="sm-okttype"></dd></div>
+        <div class="sm-field"><dt>Teknikk / Terreng</dt><dd id="sm-teknikk"></dd></div>
+        <div class="sm-field"><dt>Varighet / Omfang</dt><dd id="sm-varighet"></dd></div>
+        <div class="sm-field"><dt>Distanse</dt><dd id="sm-distanse"></dd></div>
+        <div class="sm-field"><dt>Opplevd belastning (RPE)</dt><dd id="sm-rpe"></dd></div>
+        <div class="sm-field sm-field-block"><dt>Kommentar</dt><dd id="sm-kommentar"></dd></div>
+      </dl>
+    </div>
+    <footer class="session-modal-actions">
+      <a class="sm-edit-btn" id="sm-edit-link" href="#">Rediger</a>
+      <button class="sm-ok-btn" type="button" data-close>OK</button>
+    </footer>
+  </div>
+</div>
+
+<script>
+(function () {
+  const modal = document.getElementById('session-modal');
+  if (!modal) return;
+
+  const dateFmt = new Intl.DateTimeFormat('no-NO',
+    { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+
+  const dash = '–';
+  const fill = (id, value) => {
+    document.getElementById(id).textContent =
+      (value === null || value === undefined || value === '') ? dash : value;
+  };
+
+  const openModal = (data) => {
+    const niceDate = dateFmt.format(new Date(data.dato + 'T00:00:00'));
+    document.getElementById('sm-date').textContent =
+      niceDate.charAt(0).toUpperCase() + niceDate.slice(1);
+    document.getElementById('sm-title').textContent = data.aktivitet;
+    document.getElementById('sm-type').textContent = data.okttype;
+    document.getElementById('sm-type-banner').className =
+      'sm-type-banner type-' + (data.okttype || '').toLowerCase();
+
+    fill('sm-aktivitet', data.aktivitet);
+    fill('sm-okttype', data.okttype);
+    fill('sm-teknikk', data.teknikk);
+    fill('sm-varighet', data.varighet);
+    fill('sm-distanse', data.distanse_km ? data.distanse_km + ' km' : null);
+    fill('sm-rpe', data.rpe ? data.rpe + ' / 10' : null);
+    fill('sm-kommentar', data.kommentar);
+
+    document.getElementById('sm-edit-link').setAttribute('href', data.edit_url);
+
+    modal.hidden = false;
+    document.body.style.overflow = 'hidden';
+  };
+
+  const closeModal = () => {
+    modal.hidden = true;
+    document.body.style.overflow = '';
+  };
+
+  modal.querySelectorAll('[data-close]').forEach(el =>
+    el.addEventListener('click', closeModal));
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape' && !modal.hidden) closeModal();
+  });
+
+  document.addEventListener('click', async (e) => {
+    const link = e.target.closest('.session-pill, .session-card');
+    if (!link || !link.dataset.sessionId) return;
+    e.preventDefault();
+    try {
+      const r = await fetch('/okt/' + link.dataset.sessionId + '/json',
+                            { headers: { 'Accept': 'application/json' } });
+      if (!r.ok) throw new Error();
+      openModal(await r.json());
+    } catch (_) {
+      window.location.href = link.getAttribute('href');
+    }
+  });
+})();
+</script>
+{% endif %}
+</body>
+</html>
