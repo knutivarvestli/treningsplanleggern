@@ -122,12 +122,17 @@ Alt UI er server-rendret — ingen npm, ingen byggesteg, ingen frontend-rammever
 
 ## ☁️ Deploy
 
-Se **[informasjon/deploy-render.md](informasjon/deploy-render.md)** for
-steg-for-steg-veiledning på Render Free + Supabase Postgres.
+To gratis-alternativer er dokumentert:
+
+- **[informasjon/deploy-pythonanywhere.md](informasjon/deploy-pythonanywhere.md)** —
+  PythonAnywhere Beginner med SQLite på persistent disk. Appen sovner
+  ikke, men oppdateringer må trekkes manuelt med `git pull` + reload.
+- **[informasjon/deploy-render.md](informasjon/deploy-render.md)** —
+  Render Free + Supabase Postgres. Auto-deploy ved push til `main`,
+  men appen sovner etter 15 min uten trafikk (30–60 sek cold start).
 
 Kortversjon: appen leser `DATABASE_URL` og `SECRET_KEY` fra
-miljøvariabler — sett begge i Render-dashboardet, push til `main`, og
-Render bygger og redeployer automatisk.
+miljøvariabler. Settes ingen `DATABASE_URL`, brukes lokal SQLite.
 
 ---
 
