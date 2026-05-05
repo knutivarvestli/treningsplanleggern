@@ -43,11 +43,17 @@ login_manager.login_view = "login"
 class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(64), unique=True, nullable=False)
+    name = db.Column(db.String(120))
+    email = db.Column(db.String(120))
     password_hash = db.Column(db.String(256), nullable=False)
     role = db.Column(db.String(16), nullable=False, default="bruker")  # bruker | admin
 
     sessions = db.relationship("Session", backref="user", cascade="all, delete-orphan")
     templates = db.relationship("Template", backref="user", cascade="all, delete-orphan")
+
+    @property
+    def display_name(self) -> str:
+        return self.name or self.username
 
     def set_password(self, password: str) -> None:
         self.password_hash = generate_password_hash(password)
@@ -443,18 +449,38 @@ def admin_users():
     if request.method == "POST":
         username = request.form["username"].strip()
         password = request.form["password"]
+        name = request.form.get("name", "").strip() or None
+        email = request.form.get("email", "").strip() or None
         role = request.form.get("role", "bruker")
-        if username and password and not User.query.filter_by(username=username).first():
-            u = User(username=username, role=role)
+        if not username or not password:
+            flash("Brukernavn og passord er påkrevd", "error")
+        elif User.query.filter_by(username=username).first():
+            flash(f"Brukernavn '{username}' finnes allerede", "error")
+        elif len(password) < 4:
+            flash("Passord må ha minst 4 tegn", "error")
+        else:
+            u = User(username=username, name=name, email=email, role=role)
             u.set_password(password)
             db.session.add(u)
             db.session.commit()
             flash(f"Bruker '{username}' opprettet", "ok")
-        else:
-            flash("Ugyldig eller eksisterende brukernavn", "error")
         return redirect(url_for("admin_users"))
     return render_template("admin_users.html",
                            users=User.query.order_by(User.username).all())
+
+
+@app.route("/admin/brukere/<int:uid>/passord", methods=["POST"])
+@admin_required
+def admin_user_password(uid: int):
+    u = db.session.get(User, uid) or abort(404)
+    new_password = request.form.get("new_password", "")
+    if len(new_password) < 4:
+        flash("Passord må ha minst 4 tegn", "error")
+    else:
+        u.set_password(new_password)
+        db.session.commit()
+        flash(f"Nytt passord satt for {u.username}", "ok")
+    return redirect(url_for("admin_users"))
 
 
 @app.route("/admin/brukere/<int:uid>/slett", methods=["POST"])
@@ -502,6 +528,18 @@ def admin_lookup_delete(lid: int):
 # ---------------------------------------------------------------------------
 def init_db() -> None:
     db.create_all()
+
+    # Light migration: legg til nye kolonner på User-tabellen hvis de mangler
+    # på en eldre database (PythonAnywhere SQLite eller Render Postgres som
+    # ble opprettet før name/email ble lagt til).
+    inspector = db.inspect(db.engine)
+    if inspector.has_table("user"):
+        existing = {c["name"] for c in inspector.get_columns("user")}
+        with db.engine.begin() as conn:
+            if "name" not in existing:
+                conn.execute(db.text('ALTER TABLE "user" ADD COLUMN name VARCHAR(120)'))
+            if "email" not in existing:
+                conn.execute(db.text('ALTER TABLE "user" ADD COLUMN email VARCHAR(120)'))
 
     if not User.query.filter_by(username="admin").first():
         admin = User(username="admin", role="admin")

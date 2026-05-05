@@ -2,24 +2,64 @@
 {% block content %}
 <div class="card">
   <h1>Brukere</h1>
-  <form method="post" class="inline-form">
-    <input name="username" placeholder="Brukernavn" required>
-    <input name="password" type="password" placeholder="Passord" required>
-    <select name="role">
-      <option value="bruker">Bruker</option>
-      <option value="admin">Administrator</option>
-    </select>
+
+  <h2 class="section-h">Opprett ny bruker</h2>
+  <form method="post" class="user-form">
+    <div class="row">
+      <label>Navn
+        <input name="name" placeholder="F.eks. Ola Nordmann">
+      </label>
+      <label>Brukernavn
+        <input name="username" required>
+      </label>
+    </div>
+    <div class="row">
+      <label>Epost
+        <input name="email" type="email" placeholder="ola@example.com">
+      </label>
+      <label>Startpassord
+        <input name="password" type="password" required minlength="4">
+      </label>
+    </div>
+    <div class="row">
+      <label>Rolle
+        <select name="role">
+          <option value="bruker">Bruker</option>
+          <option value="admin">Administrator</option>
+        </select>
+      </label>
+      <span class="row-spacer"></span>
+    </div>
     <button type="submit">Opprett</button>
   </form>
 
-  <table class="data">
-    <thead><tr><th>Brukernavn</th><th>Rolle</th><th></th></tr></thead>
+  <h2 class="section-h">Eksisterende brukere</h2>
+  <table class="data users-table">
+    <thead>
+      <tr>
+        <th>Brukernavn</th>
+        <th>Navn</th>
+        <th>Epost</th>
+        <th>Rolle</th>
+        <th>Sett nytt passord</th>
+        <th></th>
+      </tr>
+    </thead>
     <tbody>
       {% for u in users %}
         <tr>
-          <td>{{ u.username }}</td>
-          <td>{{ u.role }}</td>
-          <td>
+          <td data-label="Brukernavn"><strong>{{ u.username }}</strong></td>
+          <td data-label="Navn">{{ u.name or '–' }}</td>
+          <td data-label="Epost">{{ u.email or '–' }}</td>
+          <td data-label="Rolle">{{ u.role }}</td>
+          <td data-label="Nytt passord">
+            <form method="post" action="{{ url_for('admin_user_password', uid=u.id) }}" class="pw-form">
+              <input type="password" name="new_password"
+                     placeholder="Nytt passord" minlength="4" required>
+              <button type="submit">Sett</button>
+            </form>
+          </td>
+          <td data-label="">
             {% if u.id != current_user.id %}
               <form method="post" action="{{ url_for('admin_user_delete', uid=u.id) }}" class="inline">
                 <button class="link-btn danger"

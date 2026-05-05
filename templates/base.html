@@ -28,9 +28,17 @@
       <a href="{{ url_for('admin_lookups') }}">Verdilister</a>
     {% endif %}
     <span class="spacer"></span>
-    <span class="user">{{ current_user.username }} ({{ current_user.role }})</span>
-    <a href="{{ url_for('change_password') }}">Bytt passord</a>
-    <a href="{{ url_for('logout') }}">Logg ut</a>
+    <details class="user-menu">
+      <summary>
+        <span class="user-name">{{ current_user.display_name }}</span>
+        <span class="user-caret" aria-hidden="true">▾</span>
+      </summary>
+      <div class="user-menu-dropdown" role="menu">
+        <span class="user-menu-meta">{{ current_user.username }} · {{ current_user.role }}</span>
+        <a href="{{ url_for('change_password') }}">Bytt passord</a>
+        <a href="{{ url_for('logout') }}">Logg ut</a>
+      </div>
+    </details>
   </div>
 </nav>
 {% endif %}
@@ -65,6 +73,13 @@
       setForced(on);
     });
   }
+
+  // Lukk brukermeny-dropdown når man klikker utenfor
+  document.addEventListener('click', (e) => {
+    document.querySelectorAll('details.user-menu[open]').forEach(d => {
+      if (!d.contains(e.target)) d.removeAttribute('open');
+    });
+  });
 })();
 </script>
 
