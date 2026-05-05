@@ -149,6 +149,27 @@ def logout():
     return redirect(url_for("login"))
 
 
+@app.route("/passord", methods=["GET", "POST"])
+@login_required
+def change_password():
+    if request.method == "POST":
+        current = request.form.get("current_password", "")
+        ny = request.form.get("new_password", "")
+        bekreft = request.form.get("confirm_password", "")
+        if not current_user.check_password(current):
+            flash("Feil nåværende passord", "error")
+        elif len(ny) < 4:
+            flash("Nytt passord må ha minst 4 tegn", "error")
+        elif ny != bekreft:
+            flash("Bekreftelsen matcher ikke det nye passordet", "error")
+        else:
+            current_user.set_password(ny)
+            db.session.commit()
+            flash("Passord oppdatert", "ok")
+            return redirect(url_for("calendar_month"))
+    return render_template("change_password.html")
+
+
 # ---------------------------------------------------------------------------
 # Kalender
 # ---------------------------------------------------------------------------
@@ -237,6 +258,60 @@ def calendar_week():
                            iso_year=iso_year, iso_week=iso_week,
                            prev=prev_monday.isocalendar(),
                            next=next_monday.isocalendar())
+
+
+# ---------------------------------------------------------------------------
+# Oppsummering
+# ---------------------------------------------------------------------------
+@app.route("/oppsummering")
+@login_required
+def summary():
+    today = date.today()
+    perioder = [
+        ("Siste 7 dager", today - timedelta(days=6)),
+        ("Siste 30 dager", today - timedelta(days=29)),
+    ]
+
+    summaries = []
+    for label, start in perioder:
+        sessions = (Session.query
+                    .filter(Session.user_id == current_user.id,
+                            Session.dato >= start,
+                            Session.dato <= today)
+                    .all())
+        per_aktivitet: dict[str, dict] = {}
+        for s in sessions:
+            entry = per_aktivitet.setdefault(s.aktivitet, {
+                "count": 0, "distanse": 0.0,
+                "rpe_sum": 0, "rpe_count": 0,
+                "okttyper": set(),
+            })
+            entry["count"] += 1
+            if s.distanse_km:
+                entry["distanse"] += s.distanse_km
+            if s.rpe:
+                entry["rpe_sum"] += s.rpe
+                entry["rpe_count"] += 1
+            entry["okttyper"].add(s.okttype)
+
+        rader = []
+        for aktivitet, e in sorted(per_aktivitet.items()):
+            rader.append({
+                "aktivitet": aktivitet,
+                "count": e["count"],
+                "distanse": round(e["distanse"], 1) if e["distanse"] else None,
+                "snitt_rpe": round(e["rpe_sum"] / e["rpe_count"], 1) if e["rpe_count"] else None,
+                "okttyper": sorted(e["okttyper"]),
+            })
+
+        summaries.append({
+            "label": label,
+            "start": start, "end": today,
+            "total": len(sessions),
+            "rader": rader,
+        })
+
+    return render_template("summary.html", summaries=summaries)
 
 
 # ---------------------------------------------------------------------------

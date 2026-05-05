@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% block content %}
+{% for s in summaries %}
+<div class="card summary-card">
+  <h1>{{ s.label }}</h1>
+  <p class="summary-period">
+    {{ s.start.strftime('%d.%m.%Y') }} – {{ s.end.strftime('%d.%m.%Y') }}
+    · {{ s.total }} økt{% if s.total != 1 %}er{% endif %}
+  </p>
+
+  {% if s.rader %}
+  <table class="data summary-table">
+    <thead>
+      <tr>
+        <th>Aktivitet</th>
+        <th class="num">Antall</th>
+        <th class="num">Distanse</th>
+        <th class="num">Snitt RPE</th>
+        <th>Økttyper</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for r in s.rader %}
+      <tr>
+        <td><strong>{{ r.aktivitet }}</strong></td>
+        <td class="num">{{ r.count }}</td>
+        <td class="num">{% if r.distanse %}{{ r.distanse }} km{% else %}–{% endif %}</td>
+        <td class="num">{% if r.snitt_rpe %}{{ r.snitt_rpe }} / 10{% else %}–{% endif %}</td>
+        <td>{{ r.okttyper | join(', ') }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <p class="empty">Ingen økter registrert i perioden.</p>
+  {% endif %}
+</div>
+{% endfor %}
+{% endblock %}

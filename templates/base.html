@@ -20,6 +20,7 @@
   <div class="nav-links" id="nav-links">
     <a href="{{ url_for('calendar_month') }}">Måned</a>
     <a href="{{ url_for('calendar_week') }}">Uke</a>
+    <a href="{{ url_for('summary') }}">Oppsummering</a>
     <a href="{{ url_for('session_new') }}">Ny økt</a>
     <a href="{{ url_for('templates_list') }}">Maler</a>
     {% if current_user.is_admin %}
@@ -28,6 +29,7 @@
     {% endif %}
     <span class="spacer"></span>
     <span class="user">{{ current_user.username }} ({{ current_user.role }})</span>
+    <a href="{{ url_for('change_password') }}">Bytt passord</a>
     <a href="{{ url_for('logout') }}">Logg ut</a>
   </div>
 </nav>
