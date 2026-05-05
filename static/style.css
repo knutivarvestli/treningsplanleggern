@@ -143,6 +143,43 @@ table.data th.num, table.data td.num { text-align: right; white-space: nowrap; }
 .summary-period { color: #6b7280; margin-top: -.4rem; }
 .summary-card .empty { color: #888; font-style: italic; }
 
+/* Mobil: tabellen blir til kort, ett per aktivitet */
+body:is(.mobile-auto, .mobile-forced) table.summary-table,
+body:is(.mobile-auto, .mobile-forced) table.summary-table tbody {
+  display: block;
+}
+body:is(.mobile-auto, .mobile-forced) table.summary-table thead { display: none; }
+body:is(.mobile-auto, .mobile-forced) table.summary-table tr {
+  display: block;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: .7rem .9rem;
+  margin-top: .7rem;
+  background: #fafbfc;
+}
+body:is(.mobile-auto, .mobile-forced) table.summary-table td {
+  display: block;
+  border: none;
+  padding: .15rem 0;
+  text-align: left !important;
+  white-space: normal;
+}
+body:is(.mobile-auto, .mobile-forced) table.summary-table td:first-child {
+  font-size: 1.1rem;
+  color: #1f3a5f;
+  margin-bottom: .25rem;
+}
+body:is(.mobile-auto, .mobile-forced) table.summary-table td:not(:first-child)::before {
+  content: attr(data-label) ": ";
+  font-weight: 600;
+  color: #6b7280;
+  margin-right: .25rem;
+}
+
+/* Skjul mobil/desktop-toggle på faktiske telefoner — den er kun nyttig
+   for forhåndsvisning fra PC. */
+body.mobile-auto #view-toggle { display: none; }
+
 .inline-form { display: flex; gap: .5rem; flex-wrap: wrap; align-items: end; margin-bottom: 1rem; }
 .inline-form input, .inline-form select { width: auto; }
 .inline { display: inline; }

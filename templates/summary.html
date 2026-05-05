@@ -22,11 +22,11 @@
     <tbody>
       {% for r in s.rader %}
       <tr>
-        <td><strong>{{ r.aktivitet }}</strong></td>
-        <td class="num">{{ r.count }}</td>
-        <td class="num">{% if r.distanse %}{{ r.distanse }} km{% else %}–{% endif %}</td>
-        <td class="num">{% if r.snitt_rpe %}{{ r.snitt_rpe }} / 10{% else %}–{% endif %}</td>
-        <td>{{ r.okttyper | join(', ') }}</td>
+        <td data-label="Aktivitet"><strong>{{ r.aktivitet }}</strong></td>
+        <td data-label="Antall" class="num">{{ r.count }}</td>
+        <td data-label="Distanse" class="num">{% if r.distanse %}{{ r.distanse }} km{% else %}–{% endif %}</td>
+        <td data-label="Snitt RPE" class="num">{% if r.snitt_rpe %}{{ r.snitt_rpe }} / 10{% else %}–{% endif %}</td>
+        <td data-label="Økttyper">{{ r.okttyper | join(', ') }}</td>
       </tr>
       {% endfor %}
     </tbody>
